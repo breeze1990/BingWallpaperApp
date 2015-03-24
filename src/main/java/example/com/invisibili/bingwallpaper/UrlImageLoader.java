@@ -8,8 +8,6 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.ImageView;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,10 +20,15 @@ import java.net.URL;
 public class UrlImageLoader extends AsyncTask<String,Void,Bitmap> {
     private final WeakReference<ImageView> wrefImg;
     private final Context context;
+    private String cur_url;
 
+    public String getCurrentUrl(){
+        return cur_url;
+    }
     public UrlImageLoader(Context context,ImageView iv){
         this.context = context;
         wrefImg = new WeakReference<ImageView>(iv);
+        cur_url = new String("");
     }
     @Override
     protected Bitmap doInBackground(String... params) {
@@ -33,18 +36,21 @@ public class UrlImageLoader extends AsyncTask<String,Void,Bitmap> {
         int count = 1;
         switch (status){
             case "dc":
-                return loadFromFile();
+                return ImageManager.loadFromFile();
             case "ok":
                 count = Integer.parseInt(params[1]);
         }
         String[] sarr = BingAPI.getWallpaperUrls(count);
-        if(sarr == null) return loadFromFile();
-        String imgurl = sarr[0];
+        if(sarr == null) return ImageManager.loadFromFile();
+        String imgurl = null;
+        if(params.length <3 ) imgurl = sarr[0];
+        else imgurl = sarr[Integer.parseInt(params[2])];
+        cur_url = imgurl;
         Log.d("url:",imgurl);
         SharedPreferences sp = context.getSharedPreferences(MainActivity.PREVURL_PREFERENCE_FILE, Context.MODE_PRIVATE);
         String p_url = sp.getString(context.getString(R.string.previous_url_key),"");
         if(p_url.equals(imgurl)) {
-            return loadFromFile();
+            return ImageManager.loadFromFile();
         }
         try {
             Bitmap pic = BitmapFactory.decodeStream((InputStream)new URL(imgurl).getContent());
@@ -82,18 +88,6 @@ public class UrlImageLoader extends AsyncTask<String,Void,Bitmap> {
         }
     }
 
-    protected Bitmap loadFromFile(){
-        // load pic from file
-        Log.d("img:","local file");
-        FileInputStream in = null;
-        try {
-            in = context.openFileInput(MainActivity.Saved_Image_File);
-            if(in == null) return null;
-        } catch (FileNotFoundException e) {
-            //e.printStackTrace();
-            Log.d("img:","file not exists");
-            return null;
-        }
-        return BitmapFactory.decodeStream(in);
-    }
+
+
 }

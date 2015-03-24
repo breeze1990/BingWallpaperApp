@@ -17,7 +17,13 @@ import java.net.URL;
 public class BingAPI {
     public static final String bing_wp_api = "http://www.bing.com/HPImageArchive.aspx?format=js&idx=0&mkt=en-US";
     public static final String bing_dn = "http://www.bing.com";
+    public static final String resolution_normal = "720x1280";
+    public static final String resolution_low = "480x800";
+    public static String[] storedList = null;
 
+    public static String[] getStoredList(){
+        return storedList;
+    }
     public static String[] getWallpaperUrls(int num){
         if(num<1) return null;
         String api = bing_wp_api + "&n=" + num;
@@ -56,8 +62,9 @@ public class BingAPI {
         for(int i=0;i<len;i++){
             JsonObject info = (JsonObject)ja.get(i);
             String tmp = bing_dn + info.get("url").getAsString();
-            urls[i] = tmp.replace("1920x1080","480x800");
+            urls[i] = tmp.replace("1920x1080",resolution_normal);
         }
+        storedList = urls;
         return urls;
     }
 }

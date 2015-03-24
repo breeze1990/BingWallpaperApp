@@ -1,14 +1,18 @@
 package example.com.invisibili.bingwallpaper;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -18,13 +22,18 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // 480*800
-        // http://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=en-US
         setContentView(R.layout.activity_main);
+        ImageManager.setContext(this);
         ImageView disp = (ImageView) findViewById(R.id.imgdisp);
-        TextView tv = (TextView) findViewById(R.id.desc);
+        ImageManager.setImageView(disp);
+        ImageManager.setResources(getResources());
         disp.setScaleType(ImageView.ScaleType.FIT_XY);
+        Bitmap loadingPic = BitmapFactory.decodeResource(getResources(), R.drawable.loading);
+        ImageCache.setLoadingPic(loadingPic);
+
         UrlImageLoader work = new UrlImageLoader(this,disp);
+        DefaultDrawable drawable = new DefaultDrawable(getResources(),loadingPic,work);
+        disp.setImageDrawable(drawable);
         if(isNetworkAvailable()){
             Toast.makeText(getApplicationContext(),"Internet connected.",Toast.LENGTH_LONG).show();
             work.execute("ok","1");
@@ -32,6 +41,18 @@ public class MainActivity extends ActionBarActivity {
             Toast.makeText(getApplicationContext(),"Internet not available.",Toast.LENGTH_LONG).show();
             work.execute("dc");
         }
+
+        final ImageNavGestureListener listener = new ImageNavGestureListener(disp);
+        final GestureDetector gd = new GestureDetector(this,listener);
+        disp.setClickable(true);
+        disp.setFocusable(true);
+        disp.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                gd.onTouchEvent(event);
+                return false;
+            }
+        });
     }
 
 
