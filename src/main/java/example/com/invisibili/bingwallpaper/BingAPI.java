@@ -1,5 +1,8 @@
 package example.com.invisibili.bingwallpaper;
 
+import android.os.AsyncTask;
+import android.util.Log;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -14,13 +17,16 @@ import java.net.URL;
 /**
  * Created by invisibili on 2015/3/23.
  */
-public class BingAPI {
+public class BingAPI extends AsyncTask<Void,Void,Void> {
     public static final String bing_wp_api = "http://www.bing.com/HPImageArchive.aspx?format=js&idx=0&mkt=en-US";
     public static final String bing_dn = "http://www.bing.com";
     public static final String resolution_normal = "720x1280";
     public static final String resolution_low = "480x800";
     public static String[] storedList = null;
-
+    public int numUrls;
+    BingAPI(int num){
+        numUrls = num;
+    }
     public static String[] getStoredList(){
         return storedList;
     }
@@ -65,6 +71,13 @@ public class BingAPI {
             urls[i] = tmp.replace("1920x1080",resolution_normal);
         }
         storedList = urls;
+        Log.d("BingApi","Url List obtained");
         return urls;
+    }
+
+    @Override
+    protected Void doInBackground(Void... params) {
+        getWallpaperUrls(numUrls);
+        return null;
     }
 }

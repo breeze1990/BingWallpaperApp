@@ -1,15 +1,18 @@
 package example.com.invisibili.bingwallpaper;
 
+import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.widget.ImageView;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * Created by invisibili on 2015/3/24.
@@ -24,6 +27,26 @@ public abstract class ImageManager {
     static{
         pos = 0;
         MAX_POSITION = 5;
+    }
+
+    public static void loadImage(int pos, ImageView view){
+        while(BingAPI.storedList == null) {
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        };
+        Log.d("IMG","POSITION: "+pos+" loading.");
+        String url = BingAPI.storedList[pos];
+        ImageCache cache = ImageCache.getInstance();
+        Bitmap bm = cache.getMemCache(url);
+        if(bm != null) view.setImageBitmap(bm);
+        else {
+            Log.d("IMG","POSITION: "+pos+" loader executing.");
+            UrlImageLoader loader = new UrlImageLoader(null, view);
+            loader.execute(url);
+        }
     }
     public static void setResources(Resources r){
         resources = r;
@@ -85,6 +108,20 @@ public abstract class ImageManager {
             if(pos>=MAX_POSITION) return;
             pos = pos + 1;
             work.execute("ok",String.valueOf(pos+1),String.valueOf(pos));
+        }
+    }
+
+    public static void setWallPaper(ImageView view){
+        WallpaperManager wm = WallpaperManager.getInstance(context);
+        Drawable d = view.getDrawable();
+        Bitmap p;
+        if(d instanceof BitmapDrawable) p = ((BitmapDrawable) d).getBitmap();
+        else return;
+        try {
+            if(p != null) wm.setBitmap(p);
+            Log.d("WP","Wallpaper set.");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

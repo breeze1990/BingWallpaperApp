@@ -4,4 +4,5 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="previous_url_key">options.pre_url</string>
+    <string name="introduction">Swipe to navigate.\nDouble tap to set current image as wallpaper.\nHope you like it.\nHave a good day.</string>
 </resources>
