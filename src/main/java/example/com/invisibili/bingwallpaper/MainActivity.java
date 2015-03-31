@@ -27,17 +27,21 @@ public class MainActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ImageCache.init(MAX_CNT-1,getResources());
-        BingAPI bApi = new BingAPI(MAX_CNT-1);
-        bApi.execute();
-        ImageManager.setContext(this);
-        ImageManager.setResources(getResources());
+
         ViewPager pager = (ViewPager)findViewById(R.id.img_display);
         ImageAdapter adapter = new ImageAdapter(getSupportFragmentManager(), pager, this);
         pager.setAdapter(adapter);
         pager.setOnPageChangeListener(adapter);
     }
-
+    @Override
+    protected void onStart(){
+        super.onStart();
+        ImageManager.setContext(this);
+        ImageManager.setResources(getResources());
+        ImageCache.init(MAX_CNT-1,getResources());
+        BingAPI bApi = new BingAPI(MAX_CNT-1);
+        bApi.execute();
+    }
     public static boolean isNetworkAvailable(Context context) {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);

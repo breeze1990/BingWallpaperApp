@@ -3,6 +3,7 @@ package example.com.invisibili.bingwallpaper;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.util.LruCache;
 
 /**
@@ -13,9 +14,15 @@ public class ImageCache {
     private static ImageCache cacheObj;
     private static LruCache<String,Bitmap> memCache;
 
-    public static void init(int num,Resources resources){
+    public static void init(int num,final Resources resources){
         memCache = new LruCache<String,Bitmap>(num);
-        loadingPic = BitmapFactory.decodeResource(resources,R.drawable.loading);
+        new AsyncTask<Void,Void,Void>(){
+            @Override
+            protected Void doInBackground(Void... params) {
+                loadingPic = BitmapFactory.decodeResource(resources,R.drawable.loading);
+                return null;
+            }
+        }.execute();
     }
     public static ImageCache getInstance(){
         if(cacheObj == null){

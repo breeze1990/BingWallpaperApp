@@ -31,6 +31,17 @@ public class UrlImageLoader extends AsyncTask<String,Void,Bitmap> {
     @Override
     protected Bitmap doInBackground(String... params) {
         String imgurl = params[0];
+        if(imgurl.equals(ImageManager.URL_LIST_NOT_READY)){
+            int pos = Integer.parseInt(params[1]);
+            while(BingAPI.storedList==null){
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            };
+            imgurl = BingAPI.storedList[pos];
+        }
         cur_url = imgurl;
         Log.d("url:",imgurl);
         try {

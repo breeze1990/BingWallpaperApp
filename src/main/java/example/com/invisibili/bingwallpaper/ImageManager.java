@@ -23,6 +23,7 @@ public abstract class ImageManager {
     private static Resources resources;
     private static int pos;
     private static int MAX_POSITION;
+    public static final String URL_LIST_NOT_READY = "waiting";
 
     static{
         pos = 0;
@@ -30,12 +31,11 @@ public abstract class ImageManager {
     }
 
     public static void loadImage(int pos, ImageView view){
-        while(BingAPI.storedList == null) {
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        if(BingAPI.storedList == null) {
+            UrlImageLoader loader = new UrlImageLoader(null, view);
+            loader.execute(URL_LIST_NOT_READY,String.valueOf(pos));
+            Log.d("IMG","list is null, pos:"+pos);
+            return;
         };
         Log.d("IMG","POSITION: "+pos+" loading.");
         String url = BingAPI.storedList[pos];
