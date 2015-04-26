@@ -11,7 +11,7 @@ import android.util.Log;
 public class ConnectivityReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        if(MainActivity.isNetworkAvailable(context) && BingAPI.storedList==null){
+        if(MainActivity.isNetworkAvailable(context) && BingAPI.getStoredList()==null){
             Log.d("RECV","Connectivity change detected, start downloading url list");
             new BingAPI(MainActivity.MAX_CNT-1).execute();
         }

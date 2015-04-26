@@ -37,8 +37,8 @@ public class ImageNavGestureListener extends GestureDetector.SimpleOnGestureList
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
                             float distanceY) {
         // User attempted to scroll
-        //Log.i(TAG, "Scroll");
-        return true;
+        Log.i(TAG, "Scroll");
+        return false;
     }
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,

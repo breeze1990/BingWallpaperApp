@@ -22,7 +22,8 @@ public class BingAPI extends AsyncTask<Void,Void,Void> {
     public static final String bing_dn = "http://www.bing.com";
     public static final String resolution_normal = "720x1280";
     public static final String resolution_low = "480x800";
-    public static String[] storedList = null;
+    private static String[] storedList = null;
+    private static String[] crList = null;
     public int numUrls;
     BingAPI(int num){
         numUrls = num;
@@ -30,8 +31,9 @@ public class BingAPI extends AsyncTask<Void,Void,Void> {
     public static String[] getStoredList(){
         return storedList;
     }
-    public static String[] getWallpaperUrls(int num){
-        if(num<1) return null;
+    public static String[] getCopyrightList() { return crList; }
+    public static void getWallpaperUrls(int num){
+        if(num<1) return;
         String api = bing_wp_api + "&n=" + num;
         String body = null;
         URL obj = null;
@@ -59,20 +61,21 @@ public class BingAPI extends AsyncTask<Void,Void,Void> {
         finally {
         }
         // parse body
-        if(body == null) return null;
+        if(body == null) return;
         JsonParser jsonParser = new JsonParser();
         JsonObject jo = (JsonObject)jsonParser.parse(body);
         JsonArray ja = jo.getAsJsonArray("images");
         int len = ja.size();
         String[] urls = new String[len];
+        crList = new String[len];
         for(int i=0;i<len;i++){
             JsonObject info = (JsonObject)ja.get(i);
             String tmp = bing_dn + info.get("url").getAsString();
             urls[i] = tmp.replace("1920x1080",resolution_normal);
+            crList[i] = info.get("copyright").getAsString();
         }
         storedList = urls;
         Log.d("BingApi","Url List obtained");
-        return urls;
     }
 
     @Override

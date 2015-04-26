@@ -9,6 +9,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -30,22 +31,25 @@ public abstract class ImageManager {
         MAX_POSITION = 5;
     }
 
-    public static void loadImage(int pos, ImageView view){
-        if(BingAPI.storedList == null) {
-            UrlImageLoader loader = new UrlImageLoader(null, view);
+    public static void loadImage(int pos, ImageView view, TextView descView){
+        if(BingAPI.getStoredList() == null) {
+            UrlImageLoader loader = new UrlImageLoader(null, view, descView);
             loader.execute(URL_LIST_NOT_READY,String.valueOf(pos));
             Log.d("IMG","list is null, pos:"+pos);
             return;
         };
         Log.d("IMG","POSITION: "+pos+" loading.");
-        String url = BingAPI.storedList[pos];
+        String url = BingAPI.getStoredList()[pos];
         ImageCache cache = ImageCache.getInstance();
         Bitmap bm = cache.getMemCache(url);
-        if(bm != null) view.setImageBitmap(bm);
+        if(bm != null) {
+            view.setImageBitmap(bm);
+            descView.setText(BingAPI.getCopyrightList()[pos]);
+        }
         else {
             Log.d("IMG","POSITION: "+pos+" loader executing.");
-            UrlImageLoader loader = new UrlImageLoader(null, view);
-            loader.execute(url);
+            UrlImageLoader loader = new UrlImageLoader(null, view, descView);
+            loader.execute(url,BingAPI.getCopyrightList()[pos]);
         }
     }
     public static void setResources(Resources r){
@@ -90,25 +94,6 @@ public abstract class ImageManager {
             return null;
         }
         return BitmapFactory.decodeStream(in);
-    }
-
-    public static void showAbout(){
-        pos = -1;
-        imageView.setImageBitmap(ImageCache.getLoadingPic());
-    }
-
-    public static void navPrev(){
-        UrlImageLoader work = new UrlImageLoader(context,imageView);
-        DefaultDrawable drawable = new DefaultDrawable(resources,ImageCache.getLoadingPic(),work);
-        imageView.setImageDrawable(drawable);
-        if(pos == -1){
-            pos = 0;
-            work.execute("ok","1");
-        }else{
-            if(pos>=MAX_POSITION) return;
-            pos = pos + 1;
-            work.execute("ok",String.valueOf(pos+1),String.valueOf(pos));
-        }
     }
 
     public static void setWallPaper(ImageView view){

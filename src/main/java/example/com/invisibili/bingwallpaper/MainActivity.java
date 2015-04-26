@@ -1,6 +1,8 @@
 package example.com.invisibili.bingwallpaper;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.Point;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -10,12 +12,14 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.Display;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -79,7 +83,7 @@ public class MainActivity extends FragmentActivity {
                 pager.setCurrentItem(0);
                 Toast.makeText(context,"No Internet.",Toast.LENGTH_SHORT).show();
             }
-            else Toast.makeText(context,String.valueOf(position),Toast.LENGTH_SHORT).show();
+            //else Toast.makeText(context,String.valueOf(position),Toast.LENGTH_SHORT).show();
         }
 
         @Override
@@ -91,6 +95,7 @@ public class MainActivity extends FragmentActivity {
     public static class ImageFragment extends Fragment{
         int pos;
         View view;
+        TextView descView;
 
         public static ImageFragment getInstance(int position){
             ImageFragment frag = new ImageFragment();
@@ -106,6 +111,7 @@ public class MainActivity extends FragmentActivity {
             pos = getArguments() != null ? getArguments().getInt("position") : 0;
         }
         @Override
+        @TargetApi(17)
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View v = null;
@@ -115,20 +121,32 @@ public class MainActivity extends FragmentActivity {
                     break;
                 default:
                     v = inflater.inflate(R.layout.image_fragment,container,false);
-                    final GestureDetector gd = new GestureDetector(getActivity(),new ImageNavGestureListener((ImageView)v));
-                    v.setClickable(true);
-                    v.setFocusable(true);
-                    v.setOnTouchListener(new View.OnTouchListener() {
+                    ImageView iv = (ImageView)v.findViewById(R.id.img_viewer);
+                    Display display = getActivity().getWindowManager().getDefaultDisplay();
+                    Point size = new Point();
+                    display.getSize(size);
+                    int width = size.x;
+                    int height = size.y;
+                    iv.getLayoutParams().height = height;
+                    iv.getLayoutParams().width = width;
+                    final GestureDetector gd = new GestureDetector(getActivity(),new ImageNavGestureListener(iv));
+
+                    iv.setClickable(true);
+                    iv.setFocusable(true);
+                    iv.setOnTouchListener(new View.OnTouchListener() {
                         @Override
                         public boolean onTouch(View v, MotionEvent event) {
                             gd.onTouchEvent(event);
-                            //Log.d("frag","onTouch event caught on ImageView");
+                            //Log.d("frag","onTouch event caught on ScrollView");
                             return false;
                         }
                     });
+
+                    view = iv;
+                    TextView tv = (TextView)v.findViewById(R.id.desc);
+                    descView = tv;
                     break;
             }
-            view = v;
             return v;
         }
 
@@ -139,7 +157,7 @@ public class MainActivity extends FragmentActivity {
         @Override
         public void onStart(){
             super.onStart();
-            if(pos>0) ImageManager.loadImage(pos-1,(ImageView)view);
+            if(pos>0) ImageManager.loadImage(pos-1,(ImageView)view, descView);
         }
     }
 }
