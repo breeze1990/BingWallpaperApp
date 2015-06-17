@@ -21,7 +21,9 @@ public class BingAPI extends AsyncTask<Void,Void,Void> {
     public static final String bing_wp_api = "http://www.bing.com/HPImageArchive.aspx?format=js&idx=0&mkt=en-US";
     public static final String bing_dn = "http://www.bing.com";
     public static final String resolution_normal = "720x1280";
+    public static final String resolution_normal_landscape = "1280x720";
     public static final String resolution_low = "480x800";
+    public static final String resolution_low_landscape = "800x480";
     private static String[] storedList = null;
     private static String[] crList = null;
     public int numUrls;

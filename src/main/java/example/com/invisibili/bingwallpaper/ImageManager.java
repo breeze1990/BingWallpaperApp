@@ -2,12 +2,14 @@ package example.com.invisibili.bingwallpaper;
 
 import android.app.WallpaperManager;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -31,24 +33,30 @@ public abstract class ImageManager {
         MAX_POSITION = 5;
     }
 
-    public static void loadImage(int pos, ImageView view, TextView descView){
+    public static void loadImage(int pos, ImageView view, TextView descView, View imgLayout, Configuration conf){
         if(BingAPI.getStoredList() == null) {
-            UrlImageLoader loader = new UrlImageLoader(null, view, descView);
+            UrlImageLoader loader = new UrlImageLoader(null, view, descView, imgLayout);
             loader.execute(URL_LIST_NOT_READY,String.valueOf(pos));
             Log.d("IMG","list is null, pos:"+pos);
             return;
         };
         Log.d("IMG","POSITION: "+pos+" loading.");
         String url = BingAPI.getStoredList()[pos];
+        if(conf.orientation == conf.ORIENTATION_LANDSCAPE) {
+            Log.d("IMG MG:","landscape: "+url);
+            url = url.replace(BingAPI.resolution_normal, BingAPI.resolution_normal_landscape);
+            Log.d("IMG MG URL", url);
+        }
         ImageCache cache = ImageCache.getInstance();
         Bitmap bm = cache.getMemCache(url);
         if(bm != null) {
             view.setImageBitmap(bm);
             descView.setText(BingAPI.getCopyrightList()[pos]);
+            imgLayout.setVisibility(View.GONE);
         }
         else {
             Log.d("IMG","POSITION: "+pos+" loader executing.");
-            UrlImageLoader loader = new UrlImageLoader(null, view, descView);
+            UrlImageLoader loader = new UrlImageLoader(null, view, descView, imgLayout);
             loader.execute(url,BingAPI.getCopyrightList()[pos]);
         }
     }

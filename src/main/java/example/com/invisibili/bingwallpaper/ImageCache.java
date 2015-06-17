@@ -13,7 +13,9 @@ public class ImageCache {
     private static Bitmap loadingPic;
     private static ImageCache cacheObj;
     private static LruCache<String,Bitmap> memCache;
-
+    public static void init(ImageCache iCache) {
+        cacheObj = iCache;
+    }
     public static void init(int num,final Resources resources){
         memCache = new LruCache<String,Bitmap>(num);
         new AsyncTask<Void,Void,Void>(){

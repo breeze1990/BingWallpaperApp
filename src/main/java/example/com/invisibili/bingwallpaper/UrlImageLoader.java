@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -22,20 +23,27 @@ public class UrlImageLoader extends AsyncTask<String,Void,Bitmap> {
     private String cur_url;
     private String desc;
     private final WeakReference<TextView> wrefDesc;
+    private final WeakReference<View> wrefLayout;
 
     public String getCurrentUrl(){
         return cur_url;
     }
-    public UrlImageLoader(Context context,ImageView iv, TextView descView){
+    public UrlImageLoader(Context context,ImageView iv, TextView descView, View imgLayout){
         this.context = context;
         wrefImg = new WeakReference<ImageView>(iv);
         cur_url = new String("");
         wrefDesc = new WeakReference<TextView>(descView);
+        wrefLayout = new WeakReference<View>(imgLayout);
     }
     @Override
     protected Bitmap doInBackground(String... params) {
         String imgurl = params[0];
         String desc = params[1];
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+//            e.printStackTrace();
+        }
         if(imgurl.equals(ImageManager.URL_LIST_NOT_READY)){
             int pos = Integer.parseInt(params[1]);
             while(BingAPI.getStoredList()==null){
@@ -74,6 +82,10 @@ public class UrlImageLoader extends AsyncTask<String,Void,Bitmap> {
             if(tv != null) {
                 tv.setText(desc);
             }
+        }
+        if (wrefLayout != null) {
+            final View v = wrefLayout.get();
+            if(v != null) v.setVisibility(View.GONE);
         }
     }
 
